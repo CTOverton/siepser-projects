@@ -26,13 +26,13 @@ function setUp() {
 
 function onFormSubmit(e) {
     const issue = formatIssue(e)
+    const { range } = e
 
     Logger.log(`Issue ${issue}`)
 
     addToDrive(issue)
-        .then(folder => {
-            postIssue(issue, folder)
-        })
+        .then(folder => postIssue(issue, folder))
+        .then(res => addLinkToResponse(res.html_url, range))
         .catch(err => {
             // TODO
         })
@@ -137,8 +137,14 @@ function postIssue(issue, driveFolder) {
         "payload" : JSON.stringify(data)
     };
 
-    const response = UrlFetchApp.fetch(`${config.github.BASE_URL}/repos/${config.github.OWNER}/${config.github.REPO}/issues`, options);
-    Logger.log(response.getContentText());
+    const response = UrlFetchApp.fetch(`${config.github.BASE_URL}/repos/${config.github.OWNER}/${config.github.REPO}/issues`, options)
+    return JSON.parse(response.getContentText())
+}
+
+function addLinkToResponse(url, range) {
+    let cell = range.getCell(1, 1).offset(0,-1)
+    cell.setValue(url)
+    Logger.log(`Added issue link to response ${cell.getRow()} ${cell.getColumn()} ${url}`)
 }
 
 function currentDate() {
