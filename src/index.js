@@ -52,7 +52,7 @@ function onFormSubmit(e) {
             addProjectLinkToResponse(newFolder.getUrl(), range)
         })
         .catch(err => {
-            // TODO
+            Logger.log(err)
         })
 }
 
